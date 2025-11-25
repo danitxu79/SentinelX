@@ -1,11 +1,35 @@
-# 🛡️ SentinelX
+<div align="center">
+  <a href="https://github.com/danitxu79/SentinelX">
+    <img src="https://raw.githubusercontent.com/danitxu79/SentinelX/main/AnabasaSoft.png" height="50" alt="AnabasaSoft Logo">
+  </a>
+  <br>
+  <a href="https://github.com/danitxu79/SentinelX">
+    <img src="https://raw.githubusercontent.com/danitxu79/SentinelX/main/SentinelX-Logo.png" width="250" alt="SentinelX Logo">
+  </a>
 
-> **Tu Guardián de Red para Linux. Simple. Potente. Inteligente.**
+  <h1>SentinelX</h1>
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
-[![Qt](https://img.shields.io/badge/GUI-PySide6%20(Qt6)-green?logo=qt&logoColor=white)](https://doc.qt.io/qtforpython/)
-[![License](https://img.shields.io/badge/License-Dual%20(LGPLv3%20%2F%20Commercial)-orange)](#-licencia)
-[![Linux](https://img.shields.io/badge/Platform-Linux-black?logo=linux&logoColor=white)](https://www.kernel.org/)
+  <p>
+    <b>Tu Guardián de Red para Linux. Simple. Potente. Inteligente.</b>
+  </p>
+
+  <p>
+    <a href="https://www.python.org/">
+      <img src="https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white" alt="Python">
+    </a>
+    <a href="https://doc.qt.io/qtforpython/">
+      <img src="https://img.shields.io/badge/GUI-PySide6%20(Qt6)-green?logo=qt&logoColor=white" alt="Qt6">
+    </a>
+    <a href="#-licencia">
+      <img src="https://img.shields.io/badge/License-Dual%20(LGPLv3%20%2F%20Commercial)-orange" alt="License">
+    </a>
+    <a href="https://www.kernel.org/">
+      <img src="https://img.shields.io/badge/Platform-Linux-black?logo=linux&logoColor=white" alt="Platform Linux">
+    </a>
+  </p>
+</div>
+
+---
 
 **SentinelX** es una interfaz gráfica (GUI) moderna diseñada para simplificar la gestión del cortafuegos en Linux. Pensada para usuarios que vienen de otros sistemas operativos o que prefieren no usar la terminal, SentinelX abstrae la complejidad de `firewalld` y `ufw`, ofreciendo una experiencia de seguridad robusta y accesible.
 
@@ -24,9 +48,9 @@
 
 ## 📸 Capturas de Pantalla
 
-*(Aquí puedes subir tus capturas a la carpeta 'screenshots' del repo y enlazarlas)*
-
-![Dashboard Principal](https://via.placeholder.com/800x450?text=Captura+SentinelX)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/danitxu79/SentinelX/main/Captura01.png" alt="Captura de Pantalla SentinelX" width="800">
+</div>
 
 ---
 
@@ -55,7 +79,6 @@
     ```bash
     pip install -r requirements.txt
     ```
-    *(Asegúrate de tener PySide6 en tu requirements.txt)*
 
 4.  **Ejecutar la aplicación:**
     ```bash
@@ -91,7 +114,7 @@ Para más detalles, consulta el archivo `LICENSE` incluido en este repositorio.
 
 Este proyecto ha sido desarrollado con ❤️ y mucho café por:
 
-**Daniel Serrano Armenta**
+**Daniel Serrano Armenta (AnabasaSoft)**
 
 * 📧 **Email:** [dani.eus79@gmail.com](mailto:dani.eus79@gmail.com)
 * 🐙 **GitHub:** [github.com/danitxu79](https://github.com/danitxu79/)
