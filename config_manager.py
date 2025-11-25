@@ -1,51 +1,62 @@
 import json
 import os
-
-CONFIG_FILE = "config.json"
+from pathlib import Path
 
 class ConfigManager:
     def __init__(self):
-        # Configuración por defecto completa
+        # 1. Definimos la ruta estándar: /home/usuario/.config/SentinelX
+        self.config_dir = Path.home() / ".config" / "SentinelX"
+        self.config_file = self.config_dir / "config.json"
+
+        # 2. Configuración por defecto
         self.config = {
             "language": "es",
             "theme": "dark",
             "custom_rules": {},
             "known_networks": {}
         }
+
+        # 3. Inicializamos (Creamos carpeta y cargamos)
+        self.init_storage()
         self.load_config()
 
+    def init_storage(self):
+        """Crea la carpeta en .config si no existe"""
+        try:
+            if not self.config_dir.exists():
+                print(f"Creando directorio de configuración: {self.config_dir}")
+                os.makedirs(self.config_dir, exist_ok=True)
+        except Exception as e:
+            print(f"Error creando directorio config: {e}")
+
     def load_config(self):
-        """Carga la configuración y asegura que existan todas las claves necesarias"""
-        if os.path.exists(CONFIG_FILE):
+        """Carga el JSON desde la ruta de usuario"""
+        if self.config_file.exists():
             try:
-                with open(CONFIG_FILE, 'r') as f:
+                with open(self.config_file, 'r') as f:
                     data = json.load(f)
                     self.config.update(data)
             except Exception as e:
                 print(f"Error cargando config: {e}")
 
         # --- BLINDAJE ---
-        # Si cargamos un config.json viejo que no tenía 'custom_rules',
-        # lo creamos ahora para evitar el KeyError.
+        # Aseguramos que existan las claves críticas si el archivo es viejo
         if "custom_rules" not in self.config:
             self.config["custom_rules"] = {}
-
-        # Si faltan otras claves futuras, las aseguramos aquí también
+        if "known_networks" not in self.config:
+            self.config["known_networks"] = {}
         if "theme" not in self.config:
             self.config["theme"] = "dark"
 
-        if "known_networks" not in self.config:
-            self.config["known_networks"] = {}
-
     def save_config(self):
-        """Guarda la configuración actual en disco"""
+        """Guarda en /home/usuario/.config/SentinelX/config.json"""
         try:
-            with open(CONFIG_FILE, 'w') as f:
+            with open(self.config_file, 'w') as f:
                 json.dump(self.config, f, indent=4)
         except Exception as e:
             print(f"Error guardando config: {e}")
 
-    # --- Getters y Setters ---
+    # --- Getters y Setters (Sin cambios) ---
 
     def get_language(self):
         return self.config.get("language", "es")
@@ -61,15 +72,13 @@ class ConfigManager:
         self.config["theme"] = theme_name
         self.save_config()
 
-   # Modificamos para aceptar 'direction' (IN o OUT)
+    # --- Gestión de Reglas ---
+
     def save_rule_description(self, port, protocol, description, direction="IN"):
         if not description: return
-        # La clave ahora incluye la dirección: "IN:80/tcp" o "OUT:80/tcp"
         key = f"{direction}:{port}/{protocol}"
-
         if "custom_rules" not in self.config:
             self.config["custom_rules"] = {}
-
         self.config["custom_rules"][key] = description
         self.save_config()
 
@@ -83,11 +92,13 @@ class ConfigManager:
             del self.config["custom_rules"][key]
             self.save_config()
 
-    # --- GESTIÓN DE REDES CONOCIDAS ---
+    # --- Gestión de Redes ---
+
     def get_network_zone(self, network_name):
-        """Devuelve 'public', 'home' o None si es nueva"""
-        return self.config["known_networks"].get(network_name, None)
+        return self.config.get("known_networks", {}).get(network_name, None)
 
     def save_network_zone(self, network_name, zone):
+        if "known_networks" not in self.config:
+            self.config["known_networks"] = {}
         self.config["known_networks"][network_name] = zone
         self.save_config()
