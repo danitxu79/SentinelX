@@ -1,9 +1,9 @@
 <div align="center">
   <a href="https://github.com/danitxu79/SentinelX">
-    <img src="https://raw.githubusercontent.com/danitxu79/SentinelX/main/AnabasaSoft.png" height="50" alt="AnabasaSoft Logo">
+    <img src="https://raw.githubusercontent.com/danitxu79/SentinelX/main/AnabasaSoft.png" width="400" alt="AnabasaSoft Logo">
   </a>
-  <br>
-  <a href="https://github.com/danitxu79/SentinelX">
+
+  <br><br> <a href="https://github.com/danitxu79/SentinelX">
     <img src="https://raw.githubusercontent.com/danitxu79/SentinelX/main/SentinelX-Logo.png" width="250" alt="SentinelX Logo">
   </a>
 
