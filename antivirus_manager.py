@@ -160,3 +160,27 @@ class AntivirusManager:
             return res.stdout.split("/")[0]
         except:
             return "Unknown"
+
+    def is_daemon_active(self):
+        """Comprueba si clamav-daemon está corriendo"""
+        try:
+            # systemctl is-active devuelve 0 si está activo
+            res = subprocess.run(
+                ["systemctl", "is-active", "--quiet", "clamav-daemon"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            return res.returncode == 0
+        except:
+            return False
+
+    def set_daemon_state(self, enable: bool):
+        """Activa/Desactiva el servicio con pkexec"""
+        action = "enable --now" if enable else "disable --now"
+        cmd = ["pkexec", "systemctl"] + action.split() + ["clamav-daemon"]
+
+        try:
+            subprocess.run(cmd, check=True)
+            return True
+        except:
+            return False

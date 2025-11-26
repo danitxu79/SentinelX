@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QTextEdit, QProgressBar, QMessageBox, QFrame)
-from PySide6.QtCore import Qt, QDir
+from PySide6.QtCore import Qt, QDir, QTimer
 from PySide6.QtGui import QFont, QColor
 
 import locales
-# Importamos el nuevo InstallWorker
+from ui_components import ToggleSwitch # <--- IMPORTANTE: Reutilizamos tu botón
 from antivirus_manager import AntivirusManager, ScanWorker, UpdateWorker, InstallWorker
 
 class AntivirusTab(QWidget):
@@ -18,24 +18,43 @@ class AntivirusTab(QWidget):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        # --- CABECERA ---
+        # --- 1. CABECERA (Estilo Firewall) ---
         header_layout = QHBoxLayout()
+
+        # Título
         lbl_title = QLabel(locales.get_text("av_title"))
         lbl_title.setFont(QFont("Arial", 16, QFont.Bold))
         header_layout.addWidget(lbl_title)
 
-        self.lbl_status = QLabel("...")
-        self.lbl_status.setAlignment(Qt.AlignRight)
-        header_layout.addWidget(self.lbl_status)
+        header_layout.addStretch()
+
+        # Label Estado (Activo/Inactivo)
+        self.lbl_daemon_status = QLabel("...")
+        self.lbl_daemon_status.setFont(QFont("Arial", 10, QFont.Bold))
+        self.lbl_daemon_status.setContentsMargins(0, 0, 10, 0)
+        header_layout.addWidget(self.lbl_daemon_status)
+
+        # Interruptor (Toggle)
+        self.toggle = ToggleSwitch()
+        self.toggle.clicked.connect(self.on_toggle_click)
+        header_layout.addWidget(self.toggle)
+
         layout.addLayout(header_layout)
 
+        # Línea separadora
         line = QFrame()
         line.setFrameShape(QFrame.HLine)
         line.setFrameShadow(QFrame.Sunken)
         line.setStyleSheet("background-color: #cccccc;")
         layout.addWidget(line)
 
-        # --- BOTONES ---
+        # Subtítulo Info
+        self.lbl_info = QLabel(locales.get_text("av_realtime_title"))
+        self.lbl_info.setStyleSheet("color: gray; font-size: 11px;")
+        self.lbl_info.setAlignment(Qt.AlignRight)
+        layout.addWidget(self.lbl_info)
+
+        # --- 2. BOTONES DE ESCANEO ---
         btn_layout = QHBoxLayout()
 
         self.btn_scan_home = QPushButton("🏠 " + locales.get_text("av_btn_scan_home"))
@@ -50,11 +69,12 @@ class AntivirusTab(QWidget):
         self.btn_update.setMinimumHeight(40)
         self.btn_update.clicked.connect(self.update_db)
 
+        # Botón STOP (Oculto)
         self.btn_stop = QPushButton("🛑 " + locales.get_text("av_btn_stop"))
         self.btn_stop.setMinimumHeight(40)
         self.btn_stop.setStyleSheet("background-color: #d32f2f; color: white; font-weight: bold;")
         self.btn_stop.clicked.connect(self.stop_scan)
-        self.btn_stop.hide() # Oculto al inicio
+        self.btn_stop.hide()
 
         btn_layout.addWidget(self.btn_scan_home)
         btn_layout.addWidget(self.btn_scan_sys)
@@ -62,7 +82,7 @@ class AntivirusTab(QWidget):
         btn_layout.addWidget(self.btn_stop)
         layout.addLayout(btn_layout)
 
-        # --- CONSOLA LOGS ---
+        # --- 3. CONSOLA ---
         self.log_output = QTextEdit()
         self.log_output.setReadOnly(True)
         self.log_output.setStyleSheet("""
@@ -76,13 +96,13 @@ class AntivirusTab(QWidget):
         """)
         layout.addWidget(self.log_output)
 
-        # --- PROGRESO ---
+        # --- 4. PROGRESO ---
         self.progress = QProgressBar()
         self.progress.setTextVisible(False)
         self.progress.hide()
         layout.addWidget(self.progress)
 
-        # --- BOTÓN INSTALAR ---
+        # --- 5. BOTÓN INSTALAR (Si falta) ---
         self.btn_install = QPushButton("📥 " + locales.get_text("av_btn_install"))
         self.btn_install.setStyleSheet("background-color: #d32f2f; color: white; font-weight: bold; padding: 10px;")
         self.btn_install.clicked.connect(self.install_clamav)
@@ -90,50 +110,79 @@ class AntivirusTab(QWidget):
         layout.addWidget(self.btn_install)
 
         self.setLayout(layout)
+
+        # Chequeo inicial
         self.check_status()
 
     def check_status(self):
+        # 1. Verificar si está instalado
         if self.manager.is_installed():
-            version = self.manager.get_db_version()
-            self.lbl_status.setText(f"✅ {locales.get_text('av_status_installed')} | {version}")
-            self.lbl_status.setStyleSheet("color: #4CAF50; font-weight: bold;")
-
-            self.btn_scan_home.setEnabled(True)
-            self.btn_scan_sys.setEnabled(True)
-            self.btn_update.setEnabled(True)
             self.btn_install.hide()
-        else:
-            self.lbl_status.setText(f"❌ {locales.get_text('av_status_missing')}")
-            self.lbl_status.setStyleSheet("color: #d32f2f; font-weight: bold;")
+            self.set_buttons_enabled(True)
+            self.toggle.setEnabled(True)
 
-            self.btn_scan_home.setEnabled(False)
-            self.btn_scan_sys.setEnabled(False)
-            self.btn_update.setEnabled(False)
+            # 2. Verificar estado del Demonio (Toggle)
+            self.toggle.blockSignals(True)
+            is_active = self.manager.is_daemon_active()
+            self.toggle.setChecked(is_active)
+
+            if is_active:
+                self.lbl_daemon_status.setText(locales.get_text("av_daemon_active"))
+                self.lbl_daemon_status.setStyleSheet("color: #2ecc71;") # Verde
+            else:
+                self.lbl_daemon_status.setText(locales.get_text("av_daemon_inactive"))
+                self.lbl_daemon_status.setStyleSheet("color: gray;")
+
+            self.toggle.blockSignals(False)
+
+            # Mostrar versión en log si está limpio
+            if self.log_output.toPlainText() == "":
+                ver = self.manager.get_db_version()
+                self.log(f"ℹ️ {locales.get_text('av_status_installed')} | {ver}")
+
+        else:
+            # No instalado
+            self.lbl_daemon_status.setText(locales.get_text("av_status_missing"))
+            self.lbl_daemon_status.setStyleSheet("color: #d32f2f;")
+
+            self.toggle.setChecked(False)
+            self.toggle.setEnabled(False)
+            self.set_buttons_enabled(False)
             self.btn_install.show()
+
+    def on_toggle_click(self):
+        """Maneja el click en el interruptor"""
+        target_state = self.toggle.isChecked()
+
+        # Cursor de espera porque systemctl tarda un poco
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        success = self.manager.set_daemon_state(target_state)
+        QApplication.restoreOverrideCursor()
+
+        if success:
+            self.check_status() # Refrescar UI
+        else:
+            # Revertir si falló (ej. canceló contraseña)
+            self.toggle.blockSignals(True)
+            self.toggle.setChecked(not target_state)
+            self.toggle.blockSignals(False)
+            QMessageBox.warning(self, "Error", locales.get_text("av_daemon_error"))
+
+    # ... (El resto de métodos scan_home, install_clamav, logs, etc. SIGUEN IGUAL) ...
+    # COPIA AQUÍ EL RESTO DE MÉTODOS DE TU ARCHIVO ANTERIOR
+    # (log, set_buttons_enabled, scan_home, scan_system, start_scan, update_db,
+    #  install_clamav, stop_scan, set_buttons_visible y los callbacks on_...)
 
     def log(self, text):
         self.log_output.append(text)
         sb = self.log_output.verticalScrollBar()
         sb.setValue(sb.maximum())
 
-    # --- HELPER PARA GESTIONAR VISIBILIDAD ---
-    def set_buttons_visible(self, scanning):
-        """
-        scanning = True -> Muestra STOP, Oculta Escanear
-        scanning = False -> Oculta STOP, Muestra Escanear
-        """
-        if scanning:
-            self.btn_scan_home.hide()
-            self.btn_scan_sys.hide()
-            self.btn_update.hide()
-            self.btn_stop.show()
-        else:
-            self.btn_scan_home.show()
-            self.btn_scan_sys.show()
-            self.btn_update.show()
-            self.btn_stop.hide()
-
-    # --- ACCIONES DE WORKERS ---
+    def set_buttons_enabled(self, enabled):
+        self.btn_scan_home.setEnabled(enabled)
+        self.btn_scan_sys.setEnabled(enabled)
+        self.btn_update.setEnabled(enabled)
+        # No tocamos btn_install aquí porque se gestiona en check_status
 
     def scan_home(self):
         self.start_scan(QDir.homePath())
@@ -148,8 +197,6 @@ class AntivirusTab(QWidget):
         self.log_output.clear()
         self.progress.setRange(0, 0)
         self.progress.show()
-
-        # CAMBIO: Ocultamos botones normales, mostramos STOP
         self.set_buttons_visible(scanning=True)
 
         self.worker = ScanWorker(path)
@@ -168,6 +215,11 @@ class AntivirusTab(QWidget):
         self.updater.finished_signal.connect(self.on_update_finished)
         self.updater.start()
 
+    def stop_scan(self):
+        if hasattr(self, 'worker') and self.worker.isRunning():
+            self.btn_stop.setEnabled(False)
+            self.worker.stop()
+
     def install_clamav(self):
         reply = QMessageBox.question(self,
                                      locales.get_text("av_install_confirm_title"),
@@ -185,23 +237,27 @@ class AntivirusTab(QWidget):
             self.installer_worker.finished_signal.connect(self.on_install_finished)
             self.installer_worker.start()
 
-    # --- CALLBACKS ---
+    def set_buttons_visible(self, scanning):
+        if scanning:
+            self.btn_scan_home.hide()
+            self.btn_scan_sys.hide()
+            self.btn_update.hide()
+            self.btn_stop.show()
+            self.btn_stop.setEnabled(True)
+            self.btn_stop.setText("🛑 " + locales.get_text("av_btn_stop"))
+        else:
+            self.btn_scan_home.show()
+            self.btn_scan_sys.show()
+            self.btn_update.show()
+            self.btn_stop.hide()
 
+    # --- CALLBACKS ---
     def on_scan_finished(self, success, infected_count):
         self.progress.hide()
-        # CAMBIO: Ocultamos STOP, mostramos botones normales
         self.set_buttons_visible(scanning=False)
-
-        # Restaurar texto del botón stop por si acaso
-        self.btn_stop.setEnabled(True)
-        self.btn_stop.setText("🛑 " + locales.get_text("av_btn_stop"))
-
         self.log("-" * 30)
 
-        # Si infected_count es -1, es que fue cancelado por usuario
-        if infected_count == -1:
-            # Ya el worker mandó el mensaje de "Detenido por usuario" al log
-            return
+        if infected_count == -1: return
 
         if not success:
             self.log(locales.get_text("av_scan_cancel_log"))
@@ -240,11 +296,3 @@ class AntivirusTab(QWidget):
             QMessageBox.critical(self,
                                  locales.get_text("av_install_error_title"),
                                  locales.get_text("av_install_error_msg"))
-
-    def stop_scan(self):
-        if hasattr(self, 'worker') and self.worker.isRunning():
-            # Deshabilitamos el botón para que no le den 2 veces
-            self.btn_stop.setEnabled(False)
-            self.btn_stop.setText("Stopping...")
-            # Llamamos al backend
-            self.worker.stop()

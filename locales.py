@@ -161,6 +161,10 @@ TRANSLATIONS = {
         "av_install_msg": "Se instalará el motor ClamAV en tu sistema.",
         "av_btn_stop": "Detener Escaneo",
         "av_scan_stopped": "🛑 Escaneo detenido por el usuario.",
+        "av_realtime_title": "Protección en Tiempo Real (Daemon)",
+        "av_daemon_active": "Servicio activo",
+        "av_daemon_inactive": "Servicio detenido",
+        "av_daemon_error": "Error al cambiar estado del servicio.",
 
         # --- MENSAJES INSTALACIÓN ANTIVIRUS ---
         "av_install_confirm_title": "Instalar",
@@ -344,6 +348,10 @@ TRANSLATIONS = {
         "av_install_msg": "ClamAV engine will be installed on your system.",
         "av_btn_stop": "Stop Scan",
         "av_scan_stopped": "🛑 Scan stopped by user.",
+        "av_realtime_title": "Real-Time Protection (Daemon)",
+        "av_daemon_active": "Service active",
+        "av_daemon_inactive": "Service stopped",
+        "av_daemon_error": "Error changing service state.",
 
         # --- ANTIVIRUS INSTALL MESSAGES ---
         "av_install_confirm_title": "Install",
