@@ -102,3 +102,12 @@ class ConfigManager:
             self.config["known_networks"] = {}
         self.config["known_networks"][network_name] = zone
         self.save_config()
+
+    # --- Gestión de Estado Polkit ---
+    def get_polkit_installed(self):
+        """Devuelve True si ya marcamos la regla como instalada"""
+        return self.config.get("polkit_installed", False)
+
+    def set_polkit_installed(self, installed=True):
+        self.config["polkit_installed"] = installed
+        self.save_config()

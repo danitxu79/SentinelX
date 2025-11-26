@@ -131,6 +131,14 @@ TRANSLATIONS = {
         "add_app_btn_save": "Aplicar Cambios",
         "apps_no_blocked": "No hay aplicaciones bloqueadas explícitamente.",
         "apps_no_allowed": "No hay servicios extra permitidos (solo los básicos).",
+
+        # --- POLKIT SETUP ---
+        "polkit_title": "Configuración Inicial",
+        "polkit_msg": "Para ofrecer una experiencia fluida, SentinelX necesita instalar una regla de sistema.\n\nEsto evitará que se te pida la contraseña cada vez que la aplicación lea el estado del firewall.\n\n¿Deseas instalar esta regla ahora? (Se pedirá contraseña una única vez)",
+        "polkit_btn_yes": "Sí, instalar (Recomendado)",
+        "polkit_btn_no": "No, prefiero introducir contraseñas",
+        "polkit_success": "Regla instalada correctamente. Reiniciando servicios...",
+        "polkit_error": "No se pudo instalar la regla.",
     },
 
     # English
@@ -255,6 +263,14 @@ TRANSLATIONS = {
         "add_app_btn_save": "Apply Changes",
         "apps_no_blocked": "No apps explicitly blocked.",
         "apps_no_allowed": "No extra services allowed (only basics).",
+
+        # --- POLKIT SETUP ---
+        "polkit_title": "Initial Setup",
+        "polkit_msg": "To provide a smooth experience, SentinelX needs to install a system rule.\n\nThis will prevent password prompts every time the app reads firewall status.\n\nDo you want to install this rule now? (Password required once)",
+        "polkit_btn_yes": "Yes, Install (Recommended)",
+        "polkit_btn_no": "No, I prefer entering passwords",
+        "polkit_success": "Rule installed successfully. Restarting services...",
+        "polkit_error": "Could not install the rule.",
     }
 }
 

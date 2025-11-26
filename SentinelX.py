@@ -1,8 +1,54 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+===============================================================================
+🛡️ SentinelX - The Smart Linux Firewall & Antivirus GUI
+===============================================================================
+
+A modern, intelligent, and user-friendly graphical interface for managing
+Linux firewalls (Firewalld & UFW). Designed to simplify network security
+for everyone.
+
+:author:       Daniel Serrano Armenta (AnabasaSoft)
+:email:        dani.eus79@gmail.com
+:website:      https://danitxu79.github.io/
+:github:       https://github.com/danitxu79/SentinelX
+:copyright:    (c) 2025 Daniel Serrano Armenta. All rights reserved.
+:license:      Dual License (LGPLv3 / Commercial)
+:version:      0.2 (Beta)
+
+===============================================================================
+LICENSE NOTICE
+===============================================================================
+This program is offered under a Dual License model. You may choose to use it
+under one of the following two licenses:
+
+1. GNU LESSER GENERAL PUBLIC LICENSE (LGPLv3):
+   You can redistribute it and/or modify it under the terms of the GNU Lesser
+   General Public License as published by the Free Software Foundation, either
+   version 3 of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU Lesser General Public License for more details.
+
+2. COMMERCIAL LICENSE:
+   If the terms of the LGPLv3 do not suit your needs (e.g., for proprietary
+   closed-source integration or distribution without source code disclosure),
+   please contact the author at <dani.eus79@gmail.com> to acquire a
+   Commercial License.
+===============================================================================
+"""
+
 import sys
 import os
-from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QMessageBox
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
+
+from polkit_manager import PolkitManager
 
 # --- Módulos de lógica ---
 from config_manager import ConfigManager
@@ -155,7 +201,58 @@ LIGHT_STYLE_SHEET = """
     }
 
     QRadioButton {
-        color: #333333;
+        color: #333333;if __name__ == "__main__":
+    app = QApplication(sys.argv)
+
+    # --- Cargar config y estilos ---
+    cfg = ConfigManager()
+    current_theme = cfg.get_theme()
+
+    if current_theme in THEMES:
+        app.setStyleSheet(THEMES[current_theme])
+    else:
+        app.setStyleSheet(THEMES["dark"])
+
+    # --- VERIFICACIÓN POLKIT (LÓGICA NUEVA) ---
+    # Consultamos si ya lo tenemos marcado como instalado en config.json
+    if not cfg.get_polkit_installed():
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle(locales.get_text("polkit_title"))
+        msg_box.setText(locales.get_text("polkit_msg"))
+        msg_box.setIcon(QMessageBox.Question)
+
+        btn_yes = msg_box.addButton(locales.get_text("polkit_btn_yes"), QMessageBox.YesRole)
+        btn_no = msg_box.addButton(locales.get_text("polkit_btn_no"), QMessageBox.NoRole)
+        msg_box.setDefaultButton(btn_yes)
+
+        msg_box.exec()
+
+        if msg_box.clickedButton() == btn_yes:
+            # Instanciamos el manager
+            from polkit_manager import PolkitManager
+            polkit_mgr = PolkitManager()
+
+            # Intentamos instalar
+            if polkit_mgr.install_rule():
+                # ¡ÉXITO! Guardamos en la config para no volver a preguntar
+                cfg.set_polkit_installed(True)
+                QMessageBox.information(None, "SentinelX", locales.get_text("polkit_success"))
+            else:
+                QMessageBox.warning(None, "SentinelX", locales.get_text("polkit_error"))
+
+    # -----------------------------------
+
+    # Icono global y ventana
+    base_dir = os.path.dirname(__file__)
+    icon_path = os.path.join(base_dir, "SentinelX-Icon-512.png")
+    if os.path.exists(icon_path):
+        app_icon = QIcon(icon_path)
+        app.setWindowIcon(app_icon)
+
+    window = MainWindow()
+    window.showMaximized()
+
+    sys.exit(app.exec())
         spacing: 5px;
     }
     QRadioButton::indicator {
@@ -184,12 +281,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(locales.get_text("app_title"))
         self.setMinimumSize(800, 600)
 
-        # ... (Resto del código de icono igual) ...
-        base_dir = os.path.dirname(__file__)
-        icon_path = os.path.join(base_dir, "SentinelX-Icon-512.png")
-        if os.path.exists(icon_path):
-            self.setWindowIcon(QIcon(icon_path))
-
         self.tabs = QTabWidget()
         self.tabs.setFocusPolicy(Qt.NoFocus)
         self.setCentralWidget(self.tabs)
@@ -199,20 +290,53 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(AntivirusTab(), locales.get_text("tab_antivirus"))
         self.tabs.addTab(ConfigTab(), locales.get_text("tab_config"))
 
-# ... (Resto del main igual) ...
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # --- Cargar la configuración y el tema ---
+    # --- Cargar config y estilos ---
     cfg = ConfigManager()
-    current_theme = cfg.get_theme() # Obtenemos el tema (ej: "dark")
+    current_theme = cfg.get_theme()
 
-    # Aplicar el estilo
     if current_theme in THEMES:
         app.setStyleSheet(THEMES[current_theme])
     else:
-        # Fallback al oscuro si hay un error en la config
         app.setStyleSheet(THEMES["dark"])
+
+    # --- VERIFICACIÓN POLKIT (LÓGICA NUEVA) ---
+    # Consultamos si ya lo tenemos marcado como instalado en config.json
+    if not cfg.get_polkit_installed():
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle(locales.get_text("polkit_title"))
+        msg_box.setText(locales.get_text("polkit_msg"))
+        msg_box.setIcon(QMessageBox.Question)
+
+        btn_yes = msg_box.addButton(locales.get_text("polkit_btn_yes"), QMessageBox.YesRole)
+        btn_no = msg_box.addButton(locales.get_text("polkit_btn_no"), QMessageBox.NoRole)
+        msg_box.setDefaultButton(btn_yes)
+
+        msg_box.exec()
+
+        if msg_box.clickedButton() == btn_yes:
+            # Instanciamos el manager
+            from polkit_manager import PolkitManager
+            polkit_mgr = PolkitManager()
+
+            # Intentamos instalar
+            if polkit_mgr.install_rule():
+                # ¡ÉXITO! Guardamos en la config para no volver a preguntar
+                cfg.set_polkit_installed(True)
+                QMessageBox.information(None, "SentinelX", locales.get_text("polkit_success"))
+            else:
+                QMessageBox.warning(None, "SentinelX", locales.get_text("polkit_error"))
+
+    # -----------------------------------
+
+    # Icono global y ventana
+    base_dir = os.path.dirname(__file__)
+    icon_path = os.path.join(base_dir, "SentinelX-Icon-512.png")
+    if os.path.exists(icon_path):
+        app_icon = QIcon(icon_path)
+        app.setWindowIcon(app_icon)
 
     window = MainWindow()
     window.showMaximized()

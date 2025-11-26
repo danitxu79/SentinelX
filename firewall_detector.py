@@ -189,16 +189,15 @@ class FirewallDetector:
         if not service:
             return rules_list
 
-        # --- BLOQUE FIREWALLD (Ya lo teníamos) ---
+        # --- FIREWALLD (SIN PKEXEC) ---
         if service == "firewalld":
             try:
+                # ELIMINAMOS 'pkexec' DE AQUÍ
                 cmd = ["firewall-cmd", "--list-all"]
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 output = result.stdout.splitlines()
-                # ... (Aquí va el código de parseo de firewalld que ya tenías) ...
-                # ... Copia y pega el bloque 'for line in output' anterior aquí ...
 
-                # Resumido para no repetir todo el código anterior:
+                current_zone = "Active"
                 for line in output:
                     line = line.strip()
                     if line.startswith("services:"):
@@ -209,58 +208,42 @@ class FirewallDetector:
                                 port_num = str(socket.getservbyname(svc))
                             except:
                                 port_num = svc
-                            rules_list.append({'port': port_num, 'protocol': 'tcp', 'action': 'ALLOW', 'service_name': svc, 'zone': 'active'})
+                            rules_list.append({'port': port_num, 'protocol': 'tcp', 'action': 'ALLOW', 'service_name': svc, 'zone': current_zone})
+
                     elif line.startswith("ports:"):
                         ports_raw = line.split(":")[1].strip().split()
                         for p in ports_raw:
                             if "/" in p:
                                 port, proto = p.split("/")
-                                rules_list.append({'port': port, 'protocol': proto, 'action': 'ALLOW', 'service_name': '', 'zone': 'active'})
+                                rules_list.append({'port': port, 'protocol': proto, 'action': 'ALLOW', 'service_name': '', 'zone': current_zone})
             except subprocess.CalledProcessError:
                 pass
 
-        # --- BLOQUE UFW (NUEVO) ---
+        # --- UFW (MANTENEMOS PKEXEC - ES OBLIGATORIO) ---
         elif service == "ufw":
             try:
-                # Necesitamos sudo para ver las reglas en UFW
-                cmd = ["pkexec", "ufw", "status"]
+                cmd = ["pkexec", "ufw", "status"] # UFW necesita root siempre
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                # ... (resto del código de parsing de UFW igual que antes) ...
                 output = result.stdout.splitlines()
-
-                # Salida típica de UFW:
-                # To                         Action      From
-                # --                         ------      ----
-                # 22/tcp                     ALLOW       Anywhere
-
                 start_parsing = False
                 for line in output:
                     if line.startswith("--"):
                         start_parsing = True
                         continue
-
                     if start_parsing and line.strip():
                         parts = line.split()
                         if len(parts) >= 2:
-                            # Parte 0: Puerto/Proto (ej: 80/tcp)
                             raw_port = parts[0]
-                            action = parts[1] # ALLOW / DENY
-
+                            action = parts[1]
                             if "/" in raw_port:
                                 port, proto = raw_port.split("/")
                             else:
                                 port = raw_port
-                                proto = "any" # UFW a veces no especifica si aplica a ambos
-
-                            # Solo mostramos reglas IPv4 para no duplicar en la tabla (UFW muestra (v6))
+                                proto = "any"
                             if "(v6)" not in line:
-                                rules_list.append({
-                                    'port': port,
-                                    'protocol': proto,
-                                    'action': action,
-                                    'service_name': '', # UFW no suele dar el nombre del servicio aquí
-                                    'zone': 'ufw-user'
-                                })
-            except subprocess.CalledProcessError:
+                                rules_list.append({'port': port, 'protocol': proto, 'action': action, 'service_name': '', 'zone': 'ufw-user'})
+            except:
                 pass
 
         return rules_list
@@ -490,50 +473,35 @@ class FirewallDetector:
         return False
 
     def get_all_available_services(self) -> list:
-        """Devuelve la lista de servicios/apps conocidos."""
         service = self.get_active_service()
-        apps = []
-
-        # --- FIREWALLD ---
         if service == "firewalld":
             try:
+                # SIN PKEXEC
                 cmd = ["firewall-cmd", "--get-services"]
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 return sorted(result.stdout.strip().split())
             except:
                 return []
-
-        # --- UFW (NUEVO) ---
         elif service == "ufw":
             try:
-                # 'ufw app list' devuelve:
-                # Available applications:
-                #   Apache
-                #   OpenSSH
+                # UFW necesita pkexec
                 cmd = ["pkexec", "ufw", "app", "list"]
                 result = subprocess.run(cmd, capture_output=True, text=True)
-                output = result.stdout.splitlines()
-
-                for line in output:
-                    # Saltamos cabeceras y líneas vacías
-                    if "Available applications" in line or not line.strip():
-                        continue
-                    # Limpiamos espacios (ej: "  OpenSSH")
+                # ... (resto del parseo igual) ...
+                apps = []
+                for line in result.stdout.splitlines():
+                    if "Available applications" in line or not line.strip(): continue
                     apps.append(line.strip())
                 return sorted(apps)
             except:
                 return []
-
         return []
 
     def get_active_services(self) -> list:
-        """Devuelve aplicaciones PERMITIDAS (Allow)."""
         service = self.get_active_service()
-        allowed_apps = []
-
-        # --- FIREWALLD ---
         if service == "firewalld":
             try:
+                # SIN PKEXEC
                 cmd = ["firewall-cmd", "--list-services"]
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 return sorted(result.stdout.strip().split())
@@ -571,17 +539,15 @@ class FirewallDetector:
         return []
 
     def get_blocked_services(self) -> list:
-        """Devuelve aplicaciones BLOQUEADAS (Deny/Reject)."""
         service = self.get_active_service()
-        blocked_apps = []
-
-        # --- FIREWALLD ---
         if service == "firewalld":
             try:
+                # SIN PKEXEC
                 cmd = ["firewall-cmd", "--list-rich-rules"]
                 result = subprocess.run(cmd, capture_output=True, text=True)
-                lines = result.stdout.splitlines()
-                for line in lines:
+                # ... (resto del parseo igual) ...
+                blocked_apps = []
+                for line in result.stdout.splitlines():
                     if 'service name="' in line and ('drop' in line or 'reject' in line):
                         start = line.find('name="') + 6
                         end = line.find('"', start)
