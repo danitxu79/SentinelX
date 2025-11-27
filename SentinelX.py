@@ -16,7 +16,7 @@ for everyone.
 :github:       https://github.com/AnabasaSoft/SentinelX
 :copyright:    (c) 2025 Daniel Serrano Armenta. All rights reserved.
 :license:      Dual License (LGPLv3 / Commercial)
-:version:      1.4.2
+:version:      1.4.3
 
 ===============================================================================
 LICENSE NOTICE
