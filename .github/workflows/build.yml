@@ -105,8 +105,8 @@ jobs:
           fpm -s dir -t deb -n sentinelx -v $VERSION_TAG \
             --architecture amd64 \
             --description "Firewall GUI for Linux (Firewalld/UFW)" \
-            --maintainer "Daniel Serrano <dani.eus79@gmail.com>" \
-            --url "https://github.com/danitxu79/SentinelX" \
+            --maintainer "Daniel Serrano <anabasasoft@gmail.com>" \
+            --url "https://github.com/AnabasaSoft/SentinelX" \
             --license "LGPLv3" \
             --depends "policykit-1" \
             --depends "python3" \
@@ -116,8 +116,8 @@ jobs:
           fpm -s dir -t rpm -n sentinelx -v $VERSION_TAG \
             --architecture x86_64 \
             --description "Firewall GUI for Linux (Firewalld/UFW)" \
-            --maintainer "Daniel Serrano <dani.eus79@gmail.com>" \
-            --url "https://github.com/danitxu79/SentinelX" \
+            --maintainer "Daniel Serrano <anabasasoft@gmail.com>" \
+            --url "https://github.com/AnabasaSoft/SentinelX" \
             --license "LGPLv3" \
             --depends "polkit" \
             --depends "python3" \
@@ -127,8 +127,8 @@ jobs:
           fpm -s dir -t pacman -n sentinelx -v $VERSION_TAG \
             --architecture x86_64 \
             --description "Firewall GUI for Linux (Firewalld/UFW)" \
-            --maintainer "Daniel Serrano <dani.eus79@gmail.com>" \
-            --url "https://github.com/danitxu79/SentinelX" \
+            --maintainer "Daniel Serrano <anabasasoft@gmail.com>" \
+            --url "https://github.com/AnabasaSoft/SentinelX" \
             --license "LGPLv3" \
             --depends "polkit" \
             --depends "python" \

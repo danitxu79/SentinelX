@@ -11,9 +11,9 @@ Linux firewalls (Firewalld & UFW). Designed to simplify network security
 for everyone.
 
 :author:       Daniel Serrano Armenta (AnabasaSoft)
-:email:        dani.eus79@gmail.com
+:email:        anabasasoft@gmail.com
 :website:      https://danitxu79.github.io/
-:github:       https://github.com/danitxu79/SentinelX
+:github:       https://github.com/AnabasaSoft/SentinelX
 :copyright:    (c) 2025 Daniel Serrano Armenta. All rights reserved.
 :license:      Dual License (LGPLv3 / Commercial)
 :version:      1.4.2
@@ -37,7 +37,7 @@ under one of the following two licenses:
 2. COMMERCIAL LICENSE:
    If the terms of the LGPLv3 do not suit your needs (e.g., for proprietary
    closed-source integration or distribution without source code disclosure),
-   please contact the author at <dani.eus79@gmail.com> to acquire a
+   please contact the author at <anabasasoft@gmail.com> to acquire a
    Commercial License.
 ===============================================================================
 """

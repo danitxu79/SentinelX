@@ -1,11 +1,11 @@
 <div align="center">
-  <a href="https://github.com/danitxu79/SentinelX">
+  <a href="https://github.com/AnabasaSoft/SentinelX">
     <img src="https://raw.githubusercontent.com/danitxu79/SentinelX/main/AnabasaSoft.png" width="600" alt="AnabasaSoft Logo">
   </a>
 
   <br><br>
 
-  <a href="https://github.com/danitxu79/SentinelX">
+  <a href="https://github.com/AnabasaSoft/SentinelX">
     <img src="https://raw.githubusercontent.com/danitxu79/SentinelX/main/SentinelX-Logo.png" width="250" alt="SentinelX Logo">
   </a>
 
@@ -86,7 +86,7 @@ pamac build sentinelx-bin
 
 Funciona en cualquier distribución (Ubuntu, Fedora, OpenSUSE, etc.) sin instalación.
 
-1. Descarga el archivo `.AppImage` desde la sección **[Releases](https://github.com/danitxu79/SentinelX/releases)**.
+1. Descarga el archivo `.AppImage` desde la sección **[Releases](https://github.com/AnabasaSoft/SentinelX/releases)**.
 2. Dale permisos de ejecución:
    ```bash
    chmod +x SentinelX-*.AppImage
@@ -95,7 +95,7 @@ Funciona en cualquier distribución (Ubuntu, Fedora, OpenSUSE, etc.) sin instala
 
 ### 📦 Paquetes Nativos (.deb / .rpm)
 
-Disponibles en la sección **[Releases](https://github.com/danitxu79/SentinelX/releases)**.
+Disponibles en la sección **[Releases](https://github.com/AnabasaSoft/SentinelX/releases)**.
 
 * **Debian/Ubuntu/Mint:** Descarga el `.deb` e instálalo con `sudo apt install ./archivo.deb`.
 * **Fedora/RHEL/Suse:** Descarga el `.rpm` e instálalo con `sudo dnf install ./archivo.rpm`.
@@ -116,7 +116,7 @@ Si quieres contribuir o modificar el código, sigue estos pasos.
 1. **Clonar el repositorio:**
 
    ```bash
-   git clone https://github.com/danitxu79/SentinelX.git
+   git clone https://github.com/AnabasaSoft/SentinelX.git
    cd SentinelX
    ```
 
@@ -173,7 +173,7 @@ Este proyecto ha sido desarrollado con ❤️ y mucho café por:
 
 **Daniel Serrano Armenta (AnabasaSoft)**
 
-* 📧 **Email:** [dani.eus79@gmail.com](mailto:dani.eus79@gmail.com)
+* 📧 **Email:** [anabasasoft@gmail.com](mailto:anabasasoft@gmail.com)
 * 🐙 **GitHub:** [github.com/danitxu79](https://github.com/danitxu79/)
 * 🌐 **Portafolio:** [danitxu79.github.io](https://danitxu79.github.io/)
 

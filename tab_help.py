@@ -45,7 +45,7 @@ class HelpTab(QWidget):
             <li><a href="https://danitxu79.github.io/" style="color: #4CAF50; text-decoration: none; font-weight: bold;">
                 {locales.get_text("h_portfolio")}
             </a></li>
-            <li><a href="https://github.com/danitxu79/SentinelX" style="color: #3498DB; text-decoration: none; font-weight: bold;">
+            <li><a href="https://github.com/AnabasaSoft/SentinelX" style="color: #3498DB; text-decoration: none; font-weight: bold;">
                 {locales.get_text("h_github")}
             </a></li>
         </ul>
