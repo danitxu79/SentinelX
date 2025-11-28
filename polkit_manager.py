@@ -6,34 +6,26 @@ import sys
 POLKIT_RULE_PATH = "/etc/polkit-1/rules.d/49-sentinelx.rules"
 HELPER_PATH = "/usr/local/bin/sentinelx-helper"
 
-# --- VERSIÓN 7 (Corrección ClamAV Moderno) ---
-CURRENT_RULE_VERSION = 8
+# --- VERSIÓN 14 (Universal Log Fix) ---
+CURRENT_RULE_VERSION = 14
 
-# 1. CONTENIDO DE LA REGLA (Solo permite nuestro helper y herramientas seguras)
-POLKIT_RULE_CONTENT = """/* Regla instalada por SentinelX (v7 - ClamAV Fix) */
+# 1. REGLA POLKIT (Sin cambios)
+POLKIT_RULE_CONTENT = """/* Regla instalada por SentinelX (v14) */
 polkit.addRule(function(action, subject) {
     var is_admin = subject.isInGroup("wheel") || subject.isInGroup("sudo");
 
     if (is_admin) {
-        // D-Bus Firewalld
         if (action.id.indexOf("org.fedoraproject.FirewallD1") == 0) {
             return polkit.Result.YES;
         }
-
-        // Ejecutables específicos
         if (action.id == "org.freedesktop.policykit.exec") {
             var program = action.lookup("program");
-
             if (program == "/usr/bin/firewall-cmd" ||
                 program == "/usr/sbin/firewall-cmd" ||
                 program == "/usr/bin/ufw" ||
                 program == "/usr/sbin/ufw" ||
                 program == "/usr/bin/freshclam" ||
-                program == "/usr/bin/journalctl" ||
-                program == "/bin/journalctl" ||
-                // HELPER SEGURO
                 program == "/usr/local/bin/sentinelx-helper" ||
-                // Systemctl
                 program == "/usr/bin/systemctl" ||
                 program == "/bin/systemctl") {
                 return polkit.Result.YES;
@@ -43,23 +35,20 @@ polkit.addRule(function(action, subject) {
 });
 """
 
-# 2. CONTENIDO DEL SCRIPT HELPER (Bash)
-# CORREGIDO: Usamos OnAccessExcludeUname en lugar de Uid para compatibilidad con ClamAV > 0.105
+# 2. SCRIPT HELPER (Búsqueda Universal)
 HELPER_CONTENT = r"""#!/bin/bash
-# SentinelX Helper Script v7
+# SentinelX Helper Script v14
 
 COMMAND="$1"
-CONF_PATH="$2"
-WATCH_PATH="$3"
+ARG1="$2"
+ARG2="$3"
 
 case "$COMMAND" in
     "enable-on-access")
+        CONF_PATH="$ARG1"
+        WATCH_PATH="$ARG2"
         if [ -z "$CONF_PATH" ] || [ -z "$WATCH_PATH" ]; then exit 1; fi
-
-        # Limpiar config vieja (Esto borrará la línea errónea automáticamente)
         sed -i '/^OnAccess/d' "$CONF_PATH"
-
-        # Añadir config nueva (Sintaxis moderna)
         echo "OnAccessIncludePath $WATCH_PATH" >> "$CONF_PATH"
         echo "OnAccessPrevention yes" >> "$CONF_PATH"
         echo "OnAccessExcludeUname root" >> "$CONF_PATH"
@@ -67,8 +56,25 @@ case "$COMMAND" in
         ;;
 
     "disable-on-access")
+        CONF_PATH="$ARG1"
         if [ -z "$CONF_PATH" ]; then exit 1; fi
         sed -i '/^OnAccess/d' "$CONF_PATH"
+        ;;
+
+    "get-logs")
+        LOG_TYPE="$ARG1"
+
+        if [ "$LOG_TYPE" == "firewalld" ]; then
+            # BÚSQUEDA UNIVERSAL: Buscamos la cadena "IN=" que siempre aparece en logs de red
+            # También buscamos FINAL_REJECT por si acaso.
+            journalctl -k -g "IN=.*OUT=|FINAL_REJECT|HOST_DENIED" -n 100 -r --no-pager || true
+
+        elif [ "$LOG_TYPE" == "ufw" ]; then
+            journalctl -k -g "\[UFW BLOCK\]" -n 100 -r --no-pager || true
+
+        elif [ "$LOG_TYPE" == "antivirus" ]; then
+            journalctl -u clamav-daemon -u clamav-clamonacc -u clamav-freshclam -n 100 -r --no-pager || true
+        fi
         ;;
 
     *)
@@ -93,8 +99,6 @@ class PolkitManager:
         ]
 
         full_cmd = "\n".join(setup_cmds)
-
-        # Última vez que pedimos pass, para actualizar el helper
         cmd = ["pkexec", "sh", "-c", full_cmd]
 
         try:
