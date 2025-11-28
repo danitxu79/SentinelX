@@ -216,5 +216,17 @@
 
     "cfg_behavior_title": "Sistemaren Portaera",
     "cfg_autostart": "Hasi SentinelX sistema abiatzean",
-    "cfg_start_min": "Hasi sistemaren erretiluan minimizatuta"
+    "cfg_start_min": "Hasi sistemaren erretiluan minimizatuta",
+
+    "tab_logs": "📜 Erregistroak",
+    "logs_title": "Sistemaren Gertaeren Ikuslea",
+    "logs_category_firewall": "Suebaki Blokeoak",
+    "logs_category_antivirus": "Antibirusen Jarduera",
+    "logs_category_system": "Sistema Orokorra",
+    "logs_btn_refresh": "Erregistroak Birkargatu",
+    "logs_btn_clear": "Ikuspegia Garbitu",
+    "logs_loading": "Sistemaren erregistroak kargatzen...",
+    "logs_empty": "Ez da azken gertakaririk aurkitu kategoria honetan.",
+    "logs_error": "Errorea erregistroak irakurtzean (baimenak falta dira?)."
+
 }

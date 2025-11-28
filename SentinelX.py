@@ -16,7 +16,7 @@ for everyone.
 :github:       https://github.com/AnabasaSoft/SentinelX
 :copyright:    (c) 2025 Daniel Serrano Armenta. All rights reserved.
 :license:      Dual License (LGPLv3 / Commercial)
-:version:      1.4.3
+:version:      1.4.4
 
 ===============================================================================
 LICENSE NOTICE
@@ -68,6 +68,7 @@ from tab_antivirus import AntivirusTab
 from tab_config import ConfigTab
 from tab_help import HelpTab
 from tab_quarantine import QuarantineTab
+from tab_logs import LogsTab
 
 # -----------------------------------------------------
 # ESTILO OSCURO (HACKER / PREMIUM)
@@ -389,7 +390,8 @@ class MainWindow(QMainWindow):
         # Usamos las claves de traducción para los títulos de pestañas
         self.tabs.addTab(FirewallTab(), locales.get_text("tab_firewall"))
         self.tabs.addTab(AntivirusTab(), locales.get_text("tab_antivirus"))
-        self.tabs.addTab(QuarantineTab(), locales.get_text("quarantine_title"))
+        self.tabs.addTab(LogsTab(), locales.get_text("tab_logs")) # <--- AQUÍ
+        self.tabs.addTab(QuarantineTab(), locales.get_text("tab_quarantine"))
         self.tabs.addTab(ConfigTab(), locales.get_text("tab_config"))
         self.tabs.addTab(HelpTab(), locales.get_text("tab_help"))
 

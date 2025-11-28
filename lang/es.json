@@ -216,5 +216,16 @@
 
     "cfg_behavior_title": "Comportamiento del Sistema",
     "cfg_autostart": "Iniciar SentinelX al arrancar el sistema",
-    "cfg_start_min": "Iniciar minimizado en la bandeja del sistema"
+    "cfg_start_min": "Iniciar minimizado en la bandeja del sistema",
+
+    "tab_logs": "📜 Registros",
+    "logs_title": "Visor de Eventos del Sistema",
+    "logs_category_firewall": "Bloqueos de Firewall",
+    "logs_category_antivirus": "Actividad Antivirus",
+    "logs_category_system": "Sistema General",
+    "logs_btn_refresh": "Recargar Registros",
+    "logs_btn_clear": "Limpiar Vista",
+    "logs_loading": "Cargando registros del sistema...",
+    "logs_empty": "No se encontraron eventos recientes para esta categoría.",
+    "logs_error": "Error al leer los registros (¿Faltan permisos?)."
 }

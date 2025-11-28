@@ -7,7 +7,7 @@ POLKIT_RULE_PATH = "/etc/polkit-1/rules.d/49-sentinelx.rules"
 HELPER_PATH = "/usr/local/bin/sentinelx-helper"
 
 # --- VERSIÓN 7 (Corrección ClamAV Moderno) ---
-CURRENT_RULE_VERSION = 7
+CURRENT_RULE_VERSION = 8
 
 # 1. CONTENIDO DE LA REGLA (Solo permite nuestro helper y herramientas seguras)
 POLKIT_RULE_CONTENT = """/* Regla instalada por SentinelX (v7 - ClamAV Fix) */
@@ -29,6 +29,8 @@ polkit.addRule(function(action, subject) {
                 program == "/usr/bin/ufw" ||
                 program == "/usr/sbin/ufw" ||
                 program == "/usr/bin/freshclam" ||
+                program == "/usr/bin/journalctl" ||
+                program == "/bin/journalctl" ||
                 // HELPER SEGURO
                 program == "/usr/local/bin/sentinelx-helper" ||
                 // Systemctl

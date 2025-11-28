@@ -216,5 +216,16 @@
 
     "cfg_behavior_title": "System Behavior",
     "cfg_autostart": "Start SentinelX on system boot",
-    "cfg_start_min": "Start minimized to system tray"
+    "cfg_start_min": "Start minimized to system tray",
+
+    "tab_logs": "📜 Logs",
+    "logs_title": "System Event Viewer",
+    "logs_category_firewall": "Firewall Blocks",
+    "logs_category_antivirus": "Antivirus Activity",
+    "logs_category_system": "General System",
+    "logs_btn_refresh": "Reload Logs",
+    "logs_btn_clear": "Clear View",
+    "logs_loading": "Loading system logs...",
+    "logs_empty": "No recent events found for this category.",
+    "logs_error": "Error reading logs (Permissions missing?)."
 }
